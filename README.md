@@ -31,7 +31,7 @@ Your graphql post object might look like:
 ```elixir
 object :post do
   field :author, :user, resolve: assoc(:author)
-  field :comments, list_of(:user), resolve: assoc(:author)
+  field :comments, list_of(:comment), resolve: assoc(:comments)
   field :title, :string
   field :body, :string
 end
