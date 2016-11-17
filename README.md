@@ -1,24 +1,46 @@
-# AbsintheEcto
+# Absinthe.Ecto
 
-**TODO: Add description**
+Provides some helper functions for easy batching of Ecto assocations
 
-## Installation
+These functions all make use of the batch plugin found in Absinthe, they're
+merely just some helpful ways to use this plugin in the context of simple ecto
+associations.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+## Basic Usage
+First specify the repo you're going to use:
 
-  1. Add `absinthe_ecto` to your list of dependencies in `mix.exs`:
+```elixir
+use Absinthe.Ecto, repo: MyApp.Repo
+```
 
-    ```elixir
-    def deps do
-      [{:absinthe_ecto, "~> 0.1.0"}]
-    end
-    ```
+Then, supposing you have some ecto associations as in this example schema:
+```elixir
+defmodule MyApp.Post do
+  use Ecto.Schema
 
-  2. Ensure `absinthe_ecto` is started before your application:
+  schema "posts" do
+    belongs_to :author, MyApp.User
+    has_many :comments, MyApp.Comment
+    field :name, :string
+    field :body, :string
+  end
+end
+```
 
-    ```elixir
-    def application do
-      [applications: [:absinthe_ecto]]
-    end
-    ```
+Your graphql post object might look like:
+```elixir
+object :post do
+  field :author, :user, resolve: assoc(:author)
+  field :comments, list_of(:user), resolve: assoc(:author)
+  field :title, :string
+  field :body, :string
+end
+```
 
+Now, queries which get the author or comments of many posts will result in
+just 1 call to the database for each!
+
+The `assoc` macro just builds a resolution function which calls `ecto_batch/4`.
+
+See the `ecto_batch/4` function for how to do this from within a regular
+resolution function.
