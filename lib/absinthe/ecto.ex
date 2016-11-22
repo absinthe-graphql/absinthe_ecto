@@ -60,6 +60,14 @@ defmodule Absinthe.Ecto do
     end
   end
 
+  @doc false
+  def __check_absinthe_ecto_repo__(nil), do: raise """
+  You must `use Absinthe.Ecto, repo: MyApp.Repo` with your application's repo.
+  """
+
+  @doc false
+  def __check_absinthe_ecto_repo__(_), do: nil
+
   @doc """
   Example:
   ```elixir
@@ -68,9 +76,8 @@ defmodule Absinthe.Ecto do
   """
   defmacro assoc(association) do
     quote do
-      unless @__absinthe_ecto_repo__, do: raise """
-      You must `use Absinthe.Ecto, repo: MyApp.Repo` with your application's repo.
-      """
+      # silent `warning: this check/guard will always yield the same result`
+      unquote(__MODULE__).__check_absinthe_ecto_repo__(@__absinthe_ecto_repo__)
       unquote(__MODULE__).assoc(@__absinthe_ecto_repo__, unquote(association))
     end
   end
