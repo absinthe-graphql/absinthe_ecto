@@ -83,21 +83,53 @@ defmodule Absinthe.Ecto do
   Generally you would use the `assoc/1` macro.
 
   However, this can be useful if you need to specify an ecto repo.
+  
+  This accepts either an atom representing an association directly on the parent,
+  or a list of atoms representing a path to the association with the parent
+  as the root node.
+  
+  If the child of the parent the association depends on does not exist, or is not
+  transversable, it will return `nil`.
 
   ```elixir
+  # Association specified directly on the parent (ie. parent.author)
   field :author, :user, resolve: assoc(MyApp.Repo, :author)
+  
+  # Association specified on a child of the parent (ie. parent.user.author)
+  field :author, :user, resolve: assoc(MyApp.Repo, [:user, :author])
   ```
   """
   def assoc(repo, association) do
     fn parent, _, _ ->
-      case Map.get(parent, association) do
-        %Ecto.Association.NotLoaded{} ->
-          ecto_batch(repo, parent, association)
-        val ->
-          {:ok, val}
+      case association do
+        [] -> raise "Association path can not be empty"
+        [_|_] -> walk_assoc(parent, repo, association)
+        _ -> assoc_node(parent, repo, association)    
       end
     end
   end
+
+  defp assoc_node(parent, repo, association) do
+    case Map.get(parent, association) do
+      %Ecto.Association.NotLoaded{} ->
+        ecto_batch(repo, parent, association)
+      val ->
+        {:ok, val}
+    end
+  end
+
+  defp walk_assoc(parent, repo, [association]) do
+    assoc_node(parent, repo, association)
+  end
+
+  defp walk_assoc(%{} = parent, repo, [node|path]) do
+    case Map.get(parent, node) do
+      nil -> {:ok, nil}
+      val -> walk_assoc(val, repo, path)
+    end
+  end
+
+  defp walk_assoc(_parent, _repo, _path), do: {:ok, nil}
 
   @doc """
   This function lets you batch load an item from within a normal resolution function.
