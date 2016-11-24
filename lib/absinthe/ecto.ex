@@ -141,8 +141,9 @@ defmodule Absinthe.Ecto do
   @doc false
   # this has to be public because it gets called from the absinthe batcher
   def perform_has_many({repo, model, foreign_key, caller}, ids) do
+    unique_ids = ids |> MapSet.new |> MapSet.to_list
     model
-    |> where([m], field(m, ^foreign_key) in ^ids)
+    |> where([m], field(m, ^foreign_key) in ^unique_ids)
     |> repo.all(caller: caller)
     |> Enum.group_by(&Map.fetch!(&1, foreign_key))
   end
@@ -150,8 +151,9 @@ defmodule Absinthe.Ecto do
   @doc false
   # this has to be public because it gets called from the absinthe batcher
   def perform_belongs_to({repo, model, foreign_key, caller}, model_ids) do
+    unique_model_ids = model_ids |> MapSet.new |> MapSet.to_list
     model
-    |> where([m], field(m, ^foreign_key) in ^model_ids)
+    |> where([m], field(m, ^foreign_key) in ^unique_model_ids)
     |> select([m], {m.id, m})
     |> repo.all(caller: caller)
     |> Map.new
