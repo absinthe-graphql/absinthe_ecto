@@ -115,10 +115,14 @@ defmodule Absinthe.Ecto do
   end
   """
   def ecto_batch(repo, %model{} = parent, association, callback \\ &default_callback/1) do
-    assoc = model.__schema__(:association, association)
+    %{owner: owner,
+      owner_key: owner_key,
+      field: field} =
+        model.__schema__(:association, association)
+
     id = Map.fetch!(parent, assoc.owner_key)
 
-    meta = {repo, assoc, self()}
+    meta = {repo, owner, owner_key, field, self()}
 
     batch({__MODULE__, :perform_batch, meta}, id, fn results ->
       results
@@ -134,16 +138,12 @@ defmodule Absinthe.Ecto do
 
   @doc false
   # this has to be public because it gets called from the absinthe batcher
-  def perform_batch({repo, assoc, caller}, ids) do
+  def perform_batch({repo, owner, owner_key, field, caller}, ids) do
     unique_ids = ids |> MapSet.new |> MapSet.to_list
-
-    %{owner: owner,
-      owner_key: owner_key,
-      field: assoc_name}  = assoc
 
       unique_ids
       |> Enum.map(&Map.put(struct(owner), owner_key, &1))
-      |> repo.preload(assoc_name)
-      |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, assoc_name)})
+      |> repo.preload(field)
+      |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, field)})
       |> Map.new
   end
