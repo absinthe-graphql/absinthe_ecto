@@ -127,31 +127,6 @@ defmodule Absinthe.Ecto do
     end)
   end
 
-  # defp build_batch(repo, parent, assoc, callback) do
-  #   id = Map.fetch!(parent, assoc.owner_key)
-  #
-  #   meta = {repo, assoc, self()}
-  #
-  #   batch({__MODULE__, :perform_batch, meta}, id, fn results ->
-  #     results
-  #     |> Map.get(id, default_result(assoc))
-  #     |> callback.()
-  #   end)
-  # end
-
-  # defp build_batch(batch_fun, repo, parent, assoc, callback) do
-  #   id = Map.fetch!(parent, assoc.owner_key)
-  #
-  #
-  #   meta = {repo, assoc.queryable, assoc.related_key, self()}
-  #
-  #   batch({__MODULE__, batch_fun, meta}, id, fn results ->
-  #     results
-  #     |> Map.get(id, default_result(batch_fun))
-  #     |> callback.()
-  #   end)
-  # end
-
   defp default_result(%Ecto.Association.BelongsTo{}), do: nil
   defp default_result(%Ecto.Association.Has{cardinality: :many}), do: []
   defp default_result(%Ecto.Association.Has{}), do: nil
@@ -172,25 +147,3 @@ defmodule Absinthe.Ecto do
       |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, assoc_name)})
       |> Map.new
   end
-
-  @doc false
-  # this has to be public because it gets called from the absinthe batcher
-  def perform_has_many({repo, model, foreign_key, caller}, ids) do
-    unique_ids = ids |> MapSet.new |> MapSet.to_list
-    model
-    |> where([m], field(m, ^foreign_key) in ^unique_ids)
-    |> repo.all(caller: caller)
-    |> Enum.group_by(&Map.fetch!(&1, foreign_key))
-  end
-
-  @doc false
-  # this has to be public because it gets called from the absinthe batcher
-  def perform_belongs_to({repo, model, foreign_key, caller}, model_ids) do
-    unique_model_ids = model_ids |> MapSet.new |> MapSet.to_list
-    model
-    |> where([m], field(m, ^foreign_key) in ^unique_model_ids)
-    |> select([m], {m.id, m})
-    |> repo.all(caller: caller)
-    |> Map.new
-  end
-end
