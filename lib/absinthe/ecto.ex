@@ -115,28 +115,63 @@ defmodule Absinthe.Ecto do
   end
   """
   def ecto_batch(repo, %model{} = parent, association, callback \\ &default_callback/1) do
-    case model.__schema__(:association, association) do
-      %Ecto.Association.BelongsTo{} = assoc ->
-        build_batch(:perform_belongs_to, repo, parent, assoc, callback)
-      %Ecto.Association.Has{cardinality: :many} = assoc ->
-        build_batch(:perform_has_many, repo, parent, assoc, callback)
-    end
-  end
-
-  defp build_batch(batch_fun, repo, parent, assoc, callback) do
+    assoc = model.__schema__(:association, association)
     id = Map.fetch!(parent, assoc.owner_key)
 
-    meta = {repo, assoc.queryable, assoc.related_key, self()}
+    meta = {repo, assoc, self()}
 
-    batch({__MODULE__, batch_fun, meta}, id, fn results ->
+    batch({__MODULE__, :perform_batch, meta}, id, fn results ->
       results
-      |> Map.get(id, default_result(batch_fun))
+      |> Map.get(id, default_result(assoc))
       |> callback.()
     end)
   end
 
-  defp default_result(:perform_belongs_to), do: nil
-  defp default_result(:perform_has_many), do: []
+  # defp build_batch(repo, parent, assoc, callback) do
+  #   id = Map.fetch!(parent, assoc.owner_key)
+  #
+  #   meta = {repo, assoc, self()}
+  #
+  #   batch({__MODULE__, :perform_batch, meta}, id, fn results ->
+  #     results
+  #     |> Map.get(id, default_result(assoc))
+  #     |> callback.()
+  #   end)
+  # end
+
+  # defp build_batch(batch_fun, repo, parent, assoc, callback) do
+  #   id = Map.fetch!(parent, assoc.owner_key)
+  #
+  #
+  #   meta = {repo, assoc.queryable, assoc.related_key, self()}
+  #
+  #   batch({__MODULE__, batch_fun, meta}, id, fn results ->
+  #     results
+  #     |> Map.get(id, default_result(batch_fun))
+  #     |> callback.()
+  #   end)
+  # end
+
+  defp default_result(%Ecto.Association.BelongsTo{}), do: nil
+  defp default_result(%Ecto.Association.Has{cardinality: :many}), do: []
+  defp default_result(%Ecto.Association.Has{}), do: nil
+  defp default_result(%Ecto.Association.ManyToMany{}), do: []
+
+  @doc false
+  # this has to be public because it gets called from the absinthe batcher
+  def perform_batch({repo, assoc, caller}, ids) do
+    unique_ids = ids |> MapSet.new |> MapSet.to_list
+
+    %{owner: owner,
+      owner_key: owner_key,
+      field: assoc_name}  = assoc
+
+      unique_ids
+      |> Enum.map(&Map.put(struct(owner), owner_key, &1))
+      |> repo.preload(assoc_name)
+      |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, assoc_name)})
+      |> Map.new
+  end
 
   @doc false
   # this has to be public because it gets called from the absinthe batcher
