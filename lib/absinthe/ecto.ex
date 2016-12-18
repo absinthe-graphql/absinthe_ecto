@@ -115,12 +115,13 @@ defmodule Absinthe.Ecto do
   end
   """
   def ecto_batch(repo, %model{} = parent, association, callback \\ &default_callback/1) do
+    assoc = model.__schema__(:association, association)
+
     %{owner: owner,
       owner_key: owner_key,
-      field: field} =
-        model.__schema__(:association, association)
+      field: field} = assoc
 
-    id = Map.fetch!(parent, assoc.owner_key)
+    id = Map.fetch!(parent, owner_key)
 
     meta = {repo, owner, owner_key, field, self()}
 
@@ -141,9 +142,10 @@ defmodule Absinthe.Ecto do
   def perform_batch({repo, owner, owner_key, field, caller}, ids) do
     unique_ids = ids |> MapSet.new |> MapSet.to_list
 
-      unique_ids
-      |> Enum.map(&Map.put(struct(owner), owner_key, &1))
-      |> repo.preload(field)
-      |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, field)})
-      |> Map.new
+    unique_ids
+    |> Enum.map(&Map.put(struct(owner), owner_key, &1))
+    |> repo.preload(field)
+    |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, field)})
+    |> Map.new
   end
+end
