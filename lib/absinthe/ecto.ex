@@ -53,6 +53,7 @@ defmodule Absinthe.Ecto do
     quote do
       import unquote(__MODULE__), only: [
         assoc: 1,
+        assoc: 2,
         ecto_batch: 3,
         ecto_batch: 4,
       ]
