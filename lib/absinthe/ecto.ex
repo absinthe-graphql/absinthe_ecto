@@ -120,13 +120,28 @@ defmodule Absinthe.Ecto do
         build_batch(:perform_belongs_to, repo, parent, assoc, callback)
       %Ecto.Association.Has{cardinality: :many} = assoc ->
         build_batch(:perform_has_many, repo, parent, assoc, callback)
+      %Ecto.Association.HasThrough{cardinality: :many} = assoc ->
+        build_batch(:perform_has_many_through, repo, model, parent, assoc, callback)
     end
   end
 
   defp build_batch(batch_fun, repo, parent, assoc, callback) do
-    id = Map.fetch!(parent, assoc.owner_key)
-
     meta = {repo, assoc.queryable, assoc.related_key, self()}
+
+    do_build_batch(batch_fun, parent, assoc, meta, callback)
+  end
+
+  defp build_batch(batch_fun, repo, model, parent, assoc, callback) do
+    [through, target] = assoc.through
+    through_assoc = model.__schema__(:association, through)
+
+    meta = {repo, through_assoc.queryable, through_assoc.related_key, target, self()}
+
+    do_build_batch(batch_fun, parent, assoc, meta, callback)
+  end
+
+  defp do_build_batch(batch_fun, parent, assoc, meta, callback) do
+    id = Map.fetch!(parent, assoc.owner_key)
 
     batch({__MODULE__, batch_fun, meta}, id, fn results ->
       results
@@ -137,6 +152,7 @@ defmodule Absinthe.Ecto do
 
   defp default_result(:perform_belongs_to), do: nil
   defp default_result(:perform_has_many), do: []
+  defp default_result(:perform_has_many_through), do: []
 
   @doc false
   # this has to be public because it gets called from the absinthe batcher
@@ -146,6 +162,17 @@ defmodule Absinthe.Ecto do
     |> where([m], field(m, ^foreign_key) in ^unique_ids)
     |> repo.all(caller: caller)
     |> Enum.group_by(&Map.fetch!(&1, foreign_key))
+  end
+
+  @doc false
+  # this has t be public because it gets called from the absinthe batcher
+  def perform_has_many_through({repo, model, foreign_key, target, caller}, ids) do
+    unique_ids = ids |> MapSet.new |> MapSet.to_list
+    model
+    |> where([m], field(m, ^foreign_key) in ^unique_ids)
+    |> repo.all(caller: caller)
+    |> repo.preload(target)
+    |> Enum.group_by(&Map.fetch!(&1, foreign_key), &Map.fetch!(&1, target))
   end
 
   @doc false
