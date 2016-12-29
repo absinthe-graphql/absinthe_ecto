@@ -127,15 +127,10 @@ defmodule Absinthe.Ecto do
 
     batch({__MODULE__, :perform_batch, meta}, id, fn results ->
       results
-      |> Map.get(id, default_result(assoc))
+      |> Map.get(id)
       |> callback.()
     end)
   end
-
-  defp default_result(%Ecto.Association.BelongsTo{}), do: nil
-  defp default_result(%Ecto.Association.Has{cardinality: :many}), do: []
-  defp default_result(%Ecto.Association.Has{}), do: nil
-  defp default_result(%Ecto.Association.ManyToMany{}), do: []
 
   @doc false
   # this has to be public because it gets called from the absinthe batcher
