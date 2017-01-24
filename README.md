@@ -32,7 +32,7 @@ Your graphql post object might look like:
 object :post do
   field :author, :user, resolve: assoc(:author)
   field :comments, list_of(:comment), resolve: assoc(:comments)
-  field :title, :string
+  field :name, :string
   field :body, :string
 end
 ```
