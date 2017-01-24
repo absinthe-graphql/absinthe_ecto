@@ -1,5 +1,4 @@
 defmodule Absinthe.Ecto do
-  import Ecto.Query
   import Absinthe.Resolution.Helpers
 
   @moduledoc """
@@ -139,7 +138,7 @@ defmodule Absinthe.Ecto do
 
     unique_ids
     |> Enum.map(&Map.put(struct(owner), owner_key, &1))
-    |> repo.preload(field)
+    |> repo.preload(field, caller: caller)
     |> Enum.map(&{Map.get(&1, owner_key), Map.get(&1, field)})
     |> Map.new
   end
