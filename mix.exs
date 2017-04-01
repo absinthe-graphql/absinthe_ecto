@@ -28,7 +28,7 @@ defmodule AbsintheEcto.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:absinthe, ">= 0.0.0"},
+      {:absinthe, "~> 1.2 or ~> 1.3.0-beta"},
       {:ecto, ">= 0.0.0"},
     ]
   end
