@@ -1,12 +1,17 @@
 defmodule AbsintheEcto.Mixfile do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [app: :absinthe_ecto,
-     version: "0.1.0",
+     version: @version,
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     package: package(),
+     source_url: "https://github.com/absinthe-graphql/absinthe_ecto",
+     docs: [source_ref: "v#{@version}", main: "Absinthe.Ecto"],
      deps: deps()]
   end
 
@@ -14,7 +19,15 @@ defmodule AbsintheEcto.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :absinthe, :ecto]]
+  end
+
+  defp package do
+    [description: "GraphQL helpers for Absinthe",
+     files: ["lib", "src", "priv", "mix.exs", "README*"],
+     maintainers: ["Bruce Williams", "Ben Wilson"],
+     licenses: ["BSD"],
+     links: %{github: "https://github.com/absinthe-graphql/absinthe_ecto"}]
   end
 
   # Dependencies can be Hex packages:
@@ -28,7 +41,7 @@ defmodule AbsintheEcto.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:absinthe, "~> 1.2 or ~> 1.3.0-beta or ~> 1.3.0-rc"},
+      {:absinthe, "~> 1.3.0"},
       {:ecto, ">= 0.0.0"},
     ]
   end
