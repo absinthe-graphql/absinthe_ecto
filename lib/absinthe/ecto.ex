@@ -126,6 +126,7 @@ defmodule Absinthe.Ecto do
   to associations this may be nil.
 
   ## Example
+  ```elixir
   resolve fn post, _, _ ->
     MyApp.Repo |> ecto_batch(post, :author, fn author ->
       # you can do something with the author after its loaded here.
@@ -133,6 +134,7 @@ defmodule Absinthe.Ecto do
       {:ok, author}
     end)
   end
+  ```
   """
   def ecto_batch(repo, %model{} = parent, association, callback \\ &default_callback/1) do
     {assoc_field, query_fun} = normalize(association)
