@@ -140,11 +140,11 @@ defmodule Absinthe.Ecto do
 
     %{owner: owner,
       owner_key: owner_key,
-      field: field,
-      queryable: queryable} = assoc
+      field: field } = assoc
 
     id = Map.fetch!(parent, owner_key)
-    query = if query_fun != nil, do: query_fun.(from queryable), else: nil
+
+    query = resolve_query(query_fun, assoc, parent)
     meta = {repo, owner, owner_key, field, query, self()}
 
     batch({__MODULE__, :perform_batch, meta}, id, fn results ->
@@ -156,6 +156,12 @@ defmodule Absinthe.Ecto do
 
   defp normalize(field) when is_atom(field), do: {field, nil}
   defp normalize({field, query_fun}), do: {field, query_fun}
+
+  # Query is resolved with `Repo.preload(association_name: query)`, so it must
+  # return the association type.
+  defp resolve_query(query_fun, %{queryable: queryable}, _) when is_function(query_fun), do: query_fun.(from(queryable))
+  defp resolve_query(query_fun, %{field: field}, parent) when is_function(query_fun), do: query_fun.(assoc(parent, field))
+  defp resolve_query(_, _, _), do: nil
 
   @doc false
   # this has to be public because it gets called from the absinthe batcher
