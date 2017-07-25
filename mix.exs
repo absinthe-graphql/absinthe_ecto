@@ -1,4 +1,4 @@
-defmodule AbsintheEcto.Mixfile do
+defmodule Absinthe.Ecto.Mixfile do
   use Mix.Project
 
   @version "0.1.0"
@@ -9,6 +9,7 @@ defmodule AbsintheEcto.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     elixirc_paths: elixirc_paths(Mix.env),
      package: package(),
      source_url: "https://github.com/absinthe-graphql/absinthe_ecto",
      docs: [source_ref: "v#{@version}", main: "Absinthe.Ecto"],
@@ -43,6 +44,12 @@ defmodule AbsintheEcto.Mixfile do
     [
       {:absinthe, "~> 1.3.0"},
       {:ecto, ">= 0.0.0"},
+      {:postgrex, ">= 0.13.0", only: [:test]},
+      {:ex_machina, ">= 2.0.0", only: [:test]},
     ]
   end
+
+  defp elixirc_paths(:test), do: elixirc_paths() ++ ["test/support"]
+  defp elixirc_paths(_), do: elixirc_paths()
+  defp elixirc_paths(), do: ["lib"]
 end
