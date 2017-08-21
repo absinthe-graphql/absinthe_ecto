@@ -25,7 +25,7 @@ defmodule Absinthe.Ecto.Mixfile do
 
   defp package do
     [description: "GraphQL helpers for Absinthe",
-     files: ["lib", "src", "priv", "mix.exs", "README*"],
+     files: ["lib", "priv", "mix.exs", "README*"],
      maintainers: ["Bruce Williams", "Ben Wilson"],
      licenses: ["BSD"],
      links: %{github: "https://github.com/absinthe-graphql/absinthe_ecto"}]
@@ -44,6 +44,7 @@ defmodule Absinthe.Ecto.Mixfile do
     [
       {:absinthe, "~> 1.3.0"},
       {:ecto, ">= 0.0.0"},
+      {:ex_doc, ">= 0.0.0"},
       {:postgrex, ">= 0.13.0", only: [:test]},
       {:ex_machina, ">= 2.0.0", only: [:test]},
     ]

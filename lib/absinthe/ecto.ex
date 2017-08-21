@@ -89,7 +89,7 @@ defmodule Absinthe.Ecto do
 
   ```elixir
   field :posts, list_of(:post) do
-    resolve assoc(:posts, fn posts_query ->
+    resolve assoc(:posts, fn posts_query, _args, _context ->
       posts_query |> order_by(asc: :name)
     end)
   end
