@@ -71,6 +71,7 @@ defmodule Absinthe.Ecto do
 
   @doc """
   Example:
+
   ```elixir
   field :author, :user, resolve: assoc(:author)
   ```
@@ -83,7 +84,18 @@ defmodule Absinthe.Ecto do
     end
   end
 
-   defmacro assoc(association, query_fun) do
+  @doc """
+  Example:
+
+  ```elixir
+  field :posts, list_of(:post) do
+    resolve assoc(:posts, fn posts_query ->
+      posts_query |> order_by(asc: :name)
+    end)
+  end
+  ```
+  """
+  defmacro assoc(association, query_fun) do
     quote do
       # silent `warning: this check/guard will always yield the same result`
       unquote(__MODULE__).__check_absinthe_ecto_repo__(@__absinthe_ecto_repo__)
@@ -126,6 +138,7 @@ defmodule Absinthe.Ecto do
   to associations this may be nil.
 
   ## Example
+
   ```elixir
   resolve fn post, _, _ ->
     MyApp.Repo |> ecto_batch(post, :author, fn author ->
