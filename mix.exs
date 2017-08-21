@@ -42,7 +42,7 @@ defmodule Absinthe.Ecto.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:absinthe, "~> 1.3.0 or ~> 1.4.0-beta"},
+      {:absinthe, "~> 1.3.0"},
       {:ecto, ">= 0.0.0"},
       {:postgrex, ">= 0.13.0", only: [:test]},
       {:ex_machina, ">= 2.0.0", only: [:test]},
