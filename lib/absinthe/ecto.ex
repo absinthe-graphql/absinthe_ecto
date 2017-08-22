@@ -116,14 +116,14 @@ defmodule Absinthe.Ecto do
   field :author, :user, resolve: assoc(MyApp.Repo, :author)
   ```
   """
-  def assoc(repo, association, query_fun) do
+  def assoc(repo, association, query_fun, callback \\ &default_callback/1) do
     fn parent, args, %{context: ctx} ->
       case Map.get(parent, association) do
         %Ecto.Association.NotLoaded{} ->
           if query_fun != nil do
-            ecto_batch(repo, parent, {association, fn query -> query_fun.(query, args, ctx) end})
+            ecto_batch(repo, parent, {association, fn query -> query_fun.(query, args, ctx) end}, callback)
           else
-            ecto_batch(repo, parent, association)
+            ecto_batch(repo, parent, association, callback)
           end
         val ->
           {:ok, val}
