@@ -1,7 +1,7 @@
 defmodule Absinthe.Ecto.Mixfile do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
 
   def project do
     [app: :absinthe_ecto,
@@ -44,7 +44,7 @@ defmodule Absinthe.Ecto.Mixfile do
     [
       {:absinthe, "~> 1.3.0"},
       {:ecto, ">= 0.0.0"},
-      {:ex_doc, ">= 0.0.0"},
+      {:ex_doc, ">= 0.0.0", only: [:dev]},
       {:postgrex, ">= 0.13.0", only: [:test]},
       {:ex_machina, ">= 2.0.0", only: [:test]},
     ]
