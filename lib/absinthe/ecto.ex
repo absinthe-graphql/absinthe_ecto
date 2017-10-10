@@ -175,7 +175,7 @@ defmodule Absinthe.Ecto do
   # Query is resolved with `Repo.preload(association_name: query)`, so it must
   # return the association type.
   defp resolve_query(query_fun, %{queryable: queryable}, _) when is_function(query_fun), do: query_fun.(from(queryable))
-  defp resolve_query(query_fun, %{field: field}, parent) when is_function(query_fun), do: query_fun.(assoc(parent, field))
+  defp resolve_query(query_fun, %{field: field}, parent) when is_function(query_fun), do: query_fun.(Ecto.assoc(parent, field))
   defp resolve_query(_, _, _), do: nil
 
   @doc false
