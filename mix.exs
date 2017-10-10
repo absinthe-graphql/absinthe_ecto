@@ -27,7 +27,7 @@ defmodule Absinthe.Ecto.Mixfile do
     [description: "GraphQL helpers for Absinthe",
      files: ["lib", "priv", "mix.exs", "README*"],
      maintainers: ["Bruce Williams", "Ben Wilson"],
-     licenses: ["BSD"],
+     licenses: ["MIT"],
      links: %{github: "https://github.com/absinthe-graphql/absinthe_ecto"}]
   end
 
