@@ -1,5 +1,7 @@
 # Absinthe.Ecto
 
+[![Hex pm](http://img.shields.io/hexpm/v/absinthe_ecto.svg?style=flat)](https://hex.pm/packages/absinthe_ecto)[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 Provides some helper functions for easy batching of Ecto assocations
 
 These functions all make use of the batch plugin found in Absinthe, they're
@@ -44,3 +46,7 @@ The `assoc` macro just builds a resolution function which calls `ecto_batch/4`.
 
 See the `ecto_batch/4` function for how to do this from within a regular
 resolution function.
+
+## License
+
+See [LICENSE.md](./LICENSE.md).
