@@ -1,6 +1,7 @@
 # Absinthe.Ecto
 
 [![Hex pm](http://img.shields.io/hexpm/v/absinthe_ecto.svg?style=flat)](https://hex.pm/packages/absinthe_ecto)[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Open Source Helpers](https://www.codetriage.com/absinthe-graphql/absinthe_ecto/badges/users.svg)](https://www.codetriage.com/absinthe-graphql/absinthe_ecto)
 
 Provides some helper functions for easy batching of Ecto assocations
 
